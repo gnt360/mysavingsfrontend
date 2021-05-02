@@ -1,6 +1,5 @@
 <template>
     <div class="main-header">
-        hi {{authenticated }}
 			<!-- Logo Header -->
 			<div class="logo-header" data-background-color="blue">
 				

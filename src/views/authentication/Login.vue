@@ -10,7 +10,7 @@
 
               <div class="login-form">
                 <div class="form-group">
-                  <label for="username">Email</label><br />
+                  <label for="username">Username</label><br />
                   <input
                     id="username"
                     name="user_name"
@@ -18,6 +18,7 @@
                     class="form-control"
                     v-model="form.user_name"
                   />
+                  <span v-if="errors.user_name" class="text-danger">{{errors.user_name[0]}}</span><br>
                 </div>
                 <div class="form-group">
                   <label for="password" class="placeholder"
@@ -32,11 +33,13 @@
                       class="form-control"
                       v-model="form.password"
                     />
+                    <span v-if="errors.password" class="text-danger">{{errors.password[0]}}</span>
                     <div class="show-password">
                       <i class="icon-eye"></i>
                     </div>
                   </div>
                 </div>
+                
                 <div class="form-group form-action-d-flex mb-3">
                   <div class="custom-control custom-checkbox">
                     <input
@@ -70,8 +73,8 @@
 </template>
 
 <script>
-//To use an action inside of another component we map an action from the vuex store and spread it into our component methods and the name of the method is signIn which comes from the auth module.
-import { mapActions } from 'vuex'
+import User from "@/Helpers/User";
+
 export default {
   name: "Login",
   data() {
@@ -86,15 +89,43 @@ export default {
   },
 
   methods:{
-	...mapActions({
-		signIn: 'auth/signIn'
-	}),
+
     login(){
-		this.signIn(this.form).then(() =>{
-			this.$router.replace({
-				name: 'Dashboard'
-			})
-		})
+     User.login(this.form)
+      .then(response => {
+        this.$root.$emit("sign-in", true);
+          localStorage.setItem("token", response.data);
+          let loader = this.$loading.show({
+          // Optional parameters
+          container: this.fullPage ? null : this.$refs.formContainer,
+          canCancel: false,
+          onCancel: this.onCancel,
+          //loader: "bars, spinner, dots",
+          loader: "spinner",
+          color: "blue",
+          width: 80,
+          height: 80,
+        });
+
+        setTimeout(() => {
+         this.$router.push({ name: "Dashboard" });
+          loader.hide();
+          this.$toastr.Add({
+            name: "User Login",
+            title: "Success", 
+            msg: "You have successfully logged in", 
+            clickClose: true, 
+            timeout: 5000, 
+            type: "success", 
+          });
+        }, 4000);
+
+      })
+      .catch(error =>{
+           if (error.response.status === 422) {
+            this.errors = error.response.data.errors;
+          }
+      });
     }
 }
 };
