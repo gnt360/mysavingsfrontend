@@ -248,7 +248,7 @@
 										<div class="dropdown-divider"></div>
 										<a class="dropdown-item" href="#">Account Setting</a>
 										<div class="dropdown-divider"></div>
-										<a class="dropdown-item" href="#">Logout</a>
+										<button class="dropdown-item btn" @click.prevent="logout()">Logout</button>
 									</li>
 								</div>
 							</ul>
@@ -264,13 +264,54 @@
 
 
 <script>
-import { mapGetters } from 'vuex';
+import Swal from "sweetalert2";
+import User from "@/Helpers/User";
 export default {
-    computed:{
-        ...mapGetters({
-            authenticated: 'auth/authenticated',
-            user: 'auth/user'
-        })
-    }
-}
+    data(){
+        return{
+            user: null,
+            isLoggedIn: false,
+        }
+    },
+    mounted() {
+        this.$root.$on("/", () => {
+        this.isLoggedIn = true;
+    });
+        this.isLoggedIn = !!localStorage.getItem("token");
+        User.auth().then((response) => {
+        this.user = response.data;
+        });
+  },
+  methods: {
+    logout() {
+
+      Swal.fire({
+        title: "Do you wan to log out?",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes",
+      }).then((result) => {
+        if (result.value) {
+          User.logout().then(() => {
+            localStorage.removeItem("token");
+            this.isLoggedIn = false;
+            this.$router.push({ name: "Login" });
+         });
+          this.$toastr.Add({
+            name: "log out",
+            title: "Success", 
+            msg: "You have successfully logged out", 
+            clickClose: true, 
+            timeout: 4000, 
+            type: "success", 
+          });
+        } else {
+          //this.$router.push("/dashboard");
+        }
+      });
+    },
+  },
+};
 </script>

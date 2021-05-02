@@ -80,7 +80,7 @@ export default {
   data() {
     return {
       form: {
-        email: '',
+        user_name: '',
         password: '',
       },
 
@@ -93,7 +93,7 @@ export default {
     login(){
      User.login(this.form)
       .then(response => {
-        this.$root.$emit("sign-in", true);
+        this.$root.$emit("/", true);
           localStorage.setItem("token", response.data);
           let loader = this.$loading.show({
           // Optional parameters

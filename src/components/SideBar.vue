@@ -8,7 +8,7 @@
 						<div class="info">
 							<a data-toggle="collapse" href="#collapseExample" aria-expanded="true">
 								<span>
-									Hizrian
+									John Doe
 									<span class="user-level">Administrator</span>
 									<span class="caret"></span>
 								</span>
@@ -300,3 +300,20 @@
 				</div>
 			</div>
 </template>
+
+<script>
+import User from "../Helpers/User"
+export default {
+  data() {
+    return {
+      user: null,
+    };
+  },
+
+  mounted() {
+    User.auth().then((response) => {
+      this.user = response.data;
+    });
+  },
+};
+</script>
